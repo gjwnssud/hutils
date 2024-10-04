@@ -1,0 +1,31 @@
+plugins {
+	id 'java'
+}
+
+group = 'com.hzn'
+version = '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+
+dependencies {
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	implementation platform('com.fasterxml.jackson:jackson-bom:2.15.0')
+	implementation 'com.fasterxml.jackson.core:jackson-core'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	testImplementation platform('org.junit:junit-bom:5.10.0')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+	useJUnitPlatform()
+}
