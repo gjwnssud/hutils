@@ -1,21 +1,21 @@
 package com.hzn.hutils;
 
-import jakarta.servlet.ServletRequestEvent;
-import jakarta.servlet.ServletRequestListener;
-import jakarta.servlet.annotation.WebListener;
+import com.hzn.hutils.filter.ResponseHolder;
+import com.hzn.hutils.weblistener.RequestHolder;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * <p></p>
+ * <p>Request Context Holder</p>
  *
  * @author hzn
  * @date 2024. 10. 4.
  */
-public class RCH {
+public class Rch {
 
 	public static HttpServletRequest getRequest () {
-		return RequestContextHolder.getRequest ();
+		return RequestHolder.getRequest ();
 	}
 
 	public static HttpSession getSession () {
@@ -46,23 +46,7 @@ public class RCH {
 		getSession ().removeAttribute (name);
 	}
 
-
-	@WebListener
-	public static class RequestContextHolder implements ServletRequestListener {
-		private static final ThreadLocal<HttpServletRequest> requestHolder = new ThreadLocal<> ();
-
-		@Override
-		public void requestInitialized (ServletRequestEvent sre) {
-			requestHolder.set ((HttpServletRequest) sre.getServletRequest ());
-		}
-
-		@Override
-		public void requestDestroyed (ServletRequestEvent sre) {
-			requestHolder.remove ();
-		}
-
-		public static HttpServletRequest getRequest () {
-			return requestHolder.get ();
-		}
+	public HttpServletResponse getResponse () {
+		return ResponseHolder.getResponse ();
 	}
 }
