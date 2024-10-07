@@ -1,6 +1,6 @@
-package com.hzn.util;
+package com.hzn.hutils;
 
-import com.hzn.awsopensearch.util.http.HttpStatus;
+import com.hzn.hutils.http.HttpStatus;
 import java.util.Arrays;
 import java.util.Optional;
 import org.slf4j.Logger;

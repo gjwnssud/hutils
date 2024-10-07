@@ -1,8 +1,8 @@
-package com.hzn.util.http;
+package com.hzn.hutils.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hzn.util.ObjectUtil;
+import com.hzn.hutils.ObjectUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

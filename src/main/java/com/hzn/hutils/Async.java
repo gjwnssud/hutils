@@ -1,4 +1,4 @@
-package com.hzn.util;
+package com.hzn.hutils;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;

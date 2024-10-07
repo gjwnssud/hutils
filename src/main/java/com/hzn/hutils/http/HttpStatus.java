@@ -1,4 +1,4 @@
-package com.hzn.util.http;
+package com.hzn.hutils.http;
 
 import java.util.Arrays;
 

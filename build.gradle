@@ -21,6 +21,7 @@ dependencies {
 	implementation platform('com.fasterxml.jackson:jackson-bom:2.15.0')
 	implementation 'com.fasterxml.jackson.core:jackson-core'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'org.slf4j:slf4j-api:2.0.9'
 
 	testImplementation platform('org.junit:junit-bom:5.10.0')
 	testImplementation 'org.junit.jupiter:junit-jupiter'

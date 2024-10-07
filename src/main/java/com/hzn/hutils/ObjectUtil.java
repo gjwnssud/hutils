@@ -1,4 +1,4 @@
-package com.hzn.util;
+package com.hzn.hutils;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
