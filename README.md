@@ -24,3 +24,45 @@
 <div style="margin-left: 1em">
    <img src="https://img.shields.io/badge/dependencies-121011?style=for-the-badge" alt=""><img src="https://img.shields.io/badge/slf4j-0E83CD?style=for-the-badge&logo=&logoColor=white" alt=""><img src="https://img.shields.io/badge/2.0.9-515151?style=for-the-badge" alt="">
 </div>
+
+## Usage
+### Maven
+###### Install 1/2: Add this to pom.xml:
+```xml
+<project>
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/gjwnssud/hutils</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.hzn</groupId>
+    <artifactId>hutils</artifactId>
+    <version>1.0.5c2d708</version>
+</dependency>
+</project>
+```
+###### Install 2/2: Run via command line:
+```shell
+mvn install
+```
+### Gradle
+###### Install 1/2: Add this to build.gradle:
+```groovy
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/gjwnssud/hutils")
+    }
+}
+
+dependencies {
+    implementation 'com.hzn:hutils:1.0.5c2d708'
+}
+```
+###### Install 2/2: Run via command line:
+```shell
+./gradlew build
+```
