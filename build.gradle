@@ -4,7 +4,21 @@ plugins {
 }
 
 group = 'com.hzn'
-version = '1.0.0'
+def getGitCommitHash = { ->
+	def stdout = new ByteArrayOutputStream()
+	try {
+		exec {
+			commandLine 'git', 'rev-parse', '--short', 'HEAD'
+			standardOutput = stdout
+			ignoreExitValue = true
+		}
+		def result = stdout.toString().trim()
+		return result ?: '0'
+	} catch (Exception ignored) {
+		return '0'
+	}
+}
+version = '1.0.' + getGitCommitHash()
 
 repositories {
 	mavenCentral()
