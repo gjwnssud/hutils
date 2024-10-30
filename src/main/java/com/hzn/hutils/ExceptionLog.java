@@ -16,7 +16,7 @@ public class ExceptionLog {
 	private static final Logger log = LoggerFactory.getLogger (ExceptionLog.class);
 
 	public static String getMessage (Throwable t) {
-		return ObjectUtil.isEmpty (t.getMessage ()) ? HttpStatus.INTERNAL_SERVER_ERROR.getMessage () : t.getMessage ();
+		return EmptyChecker.isEmpty (t.getMessage ()) ? HttpStatus.INTERNAL_SERVER_ERROR.getMessage () : t.getMessage ();
 	}
 
 	public static void print (Throwable t) {

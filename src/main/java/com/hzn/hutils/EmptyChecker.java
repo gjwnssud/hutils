@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author hzn
  * @date 2024. 10. 4.
  */
-public class ObjectUtil {
+public class EmptyChecker {
 
 	public static boolean isEmpty (Object obj) {
 		if (obj == null) {
