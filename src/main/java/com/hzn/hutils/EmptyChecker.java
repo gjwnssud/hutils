@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author hzn
  * @date 2024. 10. 4.
  */
-public class ObjectUtil {
+public class EmptyChecker {
 
 	public static boolean isEmpty (Object obj) {
 		if (obj == null) {
@@ -26,6 +26,10 @@ public class ObjectUtil {
 			return collection.isEmpty ();
 		} else if (obj instanceof Map<?, ?> map) {
 			return map.isEmpty ();
+		} else if (obj instanceof Integer i) {
+			return i == 0;
+		} else if (obj instanceof Double d) {
+			return d == 0.0;
 		} else {
 			return false;
 		}

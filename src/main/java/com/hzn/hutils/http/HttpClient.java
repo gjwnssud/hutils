@@ -2,7 +2,7 @@ package com.hzn.hutils.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hzn.hutils.ObjectUtil;
+import com.hzn.hutils.EmptyChecker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -89,7 +89,7 @@ public class HttpClient {
 
 	private HttpResponse<String> request (String spec, String method, Headers headers, Parameters parameters, String requestBody) {
 		StringBuilder urlSb = new StringBuilder (spec);
-		if (HttpMethod.GET.name ().equalsIgnoreCase (method) && !ObjectUtil.isEmpty (parameters)) {
+		if (HttpMethod.GET.name ().equalsIgnoreCase (method) && !EmptyChecker.isEmpty (parameters)) {
 			queryString (urlSb, parameters, method);
 		}
 		URL url;
@@ -117,7 +117,7 @@ public class HttpClient {
 			});
 		}
 
-		if (ObjectUtil.isEmpty (contentType.get ())) {
+		if (EmptyChecker.isEmpty (contentType.get ())) {
 			contentType.set (MediaType.URL_ENCODED);
 			connection.setRequestProperty ("Content-Type", MediaType.JSON);
 		}
@@ -187,7 +187,7 @@ public class HttpClient {
 				throw new IllegalArgumentException ();
 			}
 			Headers headers = new Headers ();
-			if (!ObjectUtil.isEmpty (o)) {
+			if (!EmptyChecker.isEmpty (o)) {
 				for (int i = 0, n = o.length; i < n; i += 2) {
 					headers.put ((String) o[i], (List<String>) o[i + 1]);
 				}
@@ -203,7 +203,7 @@ public class HttpClient {
 				throw new IllegalArgumentException ();
 			}
 			Parameters parameters = new Parameters ();
-			if (!ObjectUtil.isEmpty (o)) {
+			if (!EmptyChecker.isEmpty (o)) {
 				for (int i = 0, n = o.length; i < n; i += 2) {
 					parameters.put ((String) o[i], o[i + 1]);
 				}

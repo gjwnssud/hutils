@@ -7,6 +7,8 @@
 - exception logging
 - retry handler
 - async
+- empty checker
+- constraints / mimetype validator
 
 ## Tech Stack 📚
 <div style="margin-left: 1em">
