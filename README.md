@@ -9,6 +9,8 @@
 - async
 - empty checker
 - constraints / mimetype validator
+- ip checker
+- string masker
 
 ## Tech Stack 📚
 <div style="margin-left: 1em">
