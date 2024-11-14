@@ -1,8 +1,6 @@
 package com.hzn.hutils.enums;
 
 import java.math.BigInteger;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * <p></p>
