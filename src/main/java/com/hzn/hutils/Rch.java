@@ -1,10 +1,12 @@
 package com.hzn.hutils;
 
-import com.hzn.hutils.filter.ResponseHolder;
-import com.hzn.hutils.weblistener.RequestHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Objects;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * <p>Request Context Holder</p>
@@ -13,40 +15,43 @@ import jakarta.servlet.http.HttpSession;
  * @date 2024. 10. 4.
  */
 public class Rch {
-
 	public static HttpServletRequest getRequest () {
-		return RequestHolder.getRequest ();
+		return ((ServletRequestAttributes) getRequestAttributes ()).getRequest ();
+	}
+
+	public static HttpServletResponse getResponse () {
+		return ((ServletRequestAttributes) getRequestAttributes ()).getResponse ();
 	}
 
 	public static HttpSession getSession () {
 		return getRequest ().getSession ();
 	}
 
-	public static void setRequestAttribute (String name, Object value) {
-		getRequest ().setAttribute (name, value);
+	public static void set (String n, Object v) {
+		set (n, v, RequestAttributes.SCOPE_REQUEST);
 	}
 
-	public static Object getRequestAttribute (String name) {
-		return getRequest ().getAttribute (name);
+	public static void set (String n, Object v, int scope) {
+		getRequestAttributes ().setAttribute (n, v, scope);
 	}
 
-	public static void removeRequestAttribute (String name) {
-		getRequest ().removeAttribute (name);
+	public static Object get (String n) {
+		return get (n, RequestAttributes.SCOPE_REQUEST);
 	}
 
-	public static void setSessionAttribute (String name, Object value) {
-		getSession ().setAttribute (name, value);
+	public static Object get (String n, int scope) {
+		return getRequestAttributes ().getAttribute (n, scope);
 	}
 
-	public static Object getSessionAttribute (String name) {
-		return getSession ().getAttribute (name);
+	public static void remove (String n) {
+		remove (n, RequestAttributes.SCOPE_REQUEST);
 	}
 
-	public static void removeSessionAttribute (String name) {
-		getSession ().removeAttribute (name);
+	public static void remove (String n, int scope) {
+		getRequestAttributes ().removeAttribute (n, scope);
 	}
 
-	public HttpServletResponse getResponse () {
-		return ResponseHolder.getResponse ();
+	private static RequestAttributes getRequestAttributes () {
+		return Objects.requireNonNull (RequestContextHolder.getRequestAttributes ());
 	}
 }

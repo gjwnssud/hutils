@@ -8,9 +8,10 @@
 - retry handler
 - async
 - empty checker
-- constraints / mimetype validator
+- constraints / mimetype / file size validator
 - ip checker
 - string masker
+- multipart-file to file converter
 
 ## Tech Stack 📚
 <div style="margin-left: 1em">
@@ -27,6 +28,9 @@
 </div>
 <div style="margin-left: 1em">
    <img src="https://img.shields.io/badge/dependencies-121011?style=for-the-badge" alt=""><img src="https://img.shields.io/badge/slf4j-0E83CD?style=for-the-badge&logo=&logoColor=white" alt=""><img src="https://img.shields.io/badge/2.0.9-515151?style=for-the-badge" alt="">
+</div>
+<div style="margin-left: 1em">
+   <img src="https://img.shields.io/badge/dependencies-121011?style=for-the-badge" alt=""><img src="https://img.shields.io/badge/spring--web-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt=""><img src="https://img.shields.io/badge/6.1.14-515151?style=for-the-badge" alt="">
 </div>
 
 ## Usage
