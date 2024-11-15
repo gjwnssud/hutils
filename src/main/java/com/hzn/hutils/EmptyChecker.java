@@ -1,5 +1,6 @@
 package com.hzn.hutils;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
@@ -26,6 +27,8 @@ public class EmptyChecker {
 			return collection.isEmpty ();
 		} else if (obj instanceof Map<?, ?> map) {
 			return map.isEmpty ();
+		} else if (obj instanceof File file) {
+			return !file.exists ();
 		} else if (obj instanceof Integer i) {
 			return i == 0;
 		} else if (obj instanceof Double d) {
