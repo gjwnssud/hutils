@@ -2,7 +2,6 @@ package com.hzn.hutils.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -21,7 +20,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
  * @date 2024. 11. 15.
  */
 @Component
-@WebFilter (filterName = "MultipartRequestFilter", urlPatterns = "/**")
 @Order
 public class MultipartRequestFilter extends OncePerRequestFilter {
 	public static final ThreadLocal<Map<MultipartFile, File>> MULTIPART_THREAD_LOCAL = new ThreadLocal<> ();
