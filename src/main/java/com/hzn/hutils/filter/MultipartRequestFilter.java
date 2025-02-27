@@ -22,22 +22,24 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @Component
 @Order
 public class MultipartRequestFilter extends OncePerRequestFilter {
-	public static final ThreadLocal<Map<MultipartFile, File>> MULTIPART_THREAD_LOCAL = new ThreadLocal<> ();
 
-	@Override
-	protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		filterChain.doFilter (request, response);
-		if (request instanceof MultipartHttpServletRequest) {
-			// 요청이 끝난 후 임시로 생성된 파일을 삭제한다.
-			Map<MultipartFile, File> multipartFileMap = MULTIPART_THREAD_LOCAL.get ();
-			if (multipartFileMap != null) {
-				multipartFileMap.forEach ((mf, f) -> {
-					if (f.exists ()) {
-						f.delete ();
-					}
-				});
-			}
-			MULTIPART_THREAD_LOCAL.remove ();
-		}
-	}
+    public static final ThreadLocal<Map<MultipartFile, File>> MULTIPART_THREAD_LOCAL = new ThreadLocal<>();
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+        filterChain.doFilter(request, response);
+        if (request instanceof MultipartHttpServletRequest) {
+            // 요청이 끝난 후 임시로 생성된 파일을 삭제한다.
+            Map<MultipartFile, File> multipartFileMap = MULTIPART_THREAD_LOCAL.get();
+            if (multipartFileMap != null) {
+                multipartFileMap.forEach((mf, f) -> {
+                    if (f.exists()) {
+                        f.delete();
+                    }
+                });
+            }
+            MULTIPART_THREAD_LOCAL.remove();
+        }
+    }
 }

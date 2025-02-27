@@ -1,7 +1,9 @@
 # Hutils
+
 개인적으로 사용하는 개발에 유용한 모듈 모음 입니다.
 
 ## Features
+
 - http client
 - request / response holder
 - exception logging
@@ -14,6 +16,7 @@
 - multipart-file to file converter
 
 ## Tech Stack 📚
+
 <div style="margin-left: 1em">
    <img src="https://img.shields.io/badge/language-121011?style=for-the-badge" alt=""><img src="https://img.shields.io/badge/java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt=""><img src="https://img.shields.io/badge/17-515151?style=for-the-badge" alt="">
 </div>
@@ -37,8 +40,11 @@
 </div>
 
 ## Usage
+
 ### Maven
+
 ###### Install 1/2: Add this to pom.xml:
+
 ```xml
 <project>
 <repositories>
@@ -55,12 +61,17 @@
 </dependency>
 </project>
 ```
+
 ###### Install 2/2: Run via command line:
+
 ```shell
 mvn install
 ```
+
 ### Gradle
+
 ###### Install 1/2: Add this to build.gradle:
+
 ```groovy
 repositories {
     maven {
@@ -73,7 +84,9 @@ dependencies {
     implementation 'com.hzn:hutils:1.0.5c2d708'
 }
 ```
+
 ###### Install 2/2: Run via command line:
+
 ```shell
 ./gradlew build
 ```

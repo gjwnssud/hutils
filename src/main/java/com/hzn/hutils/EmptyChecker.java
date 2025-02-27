@@ -14,27 +14,27 @@ import java.util.Optional;
  */
 public class EmptyChecker {
 
-	public static boolean isEmpty (Object obj) {
-		if (obj == null) {
-			return true;
-		} else if (obj instanceof Optional<?> optional) {
-			return optional.isEmpty ();
-		} else if (obj instanceof CharSequence charSequence) {
-			return charSequence.isEmpty ();
-		} else if (obj.getClass ().isArray ()) {
-			return Array.getLength (obj) == 0;
-		} else if (obj instanceof Collection<?> collection) {
-			return collection.isEmpty ();
-		} else if (obj instanceof Map<?, ?> map) {
-			return map.isEmpty ();
-		} else if (obj instanceof File file) {
-			return !file.exists ();
-		} else if (obj instanceof Integer i) {
-			return i == 0;
-		} else if (obj instanceof Double d) {
-			return d == 0.0;
-		} else {
-			return false;
-		}
-	}
+    public static boolean isEmpty(Object obj) {
+        if (obj == null) {
+            return true;
+        } else if (obj instanceof Optional<?> optional) {
+            return optional.isEmpty();
+        } else if (obj instanceof CharSequence charSequence) {
+            return charSequence.isEmpty();
+        } else if (obj.getClass().isArray()) {
+            return Array.getLength(obj) == 0;
+        } else if (obj instanceof Collection<?> collection) {
+            return collection.isEmpty();
+        } else if (obj instanceof Map<?, ?> map) {
+            return map.isEmpty();
+        } else if (obj instanceof File file) {
+            return !file.exists();
+        } else if (obj instanceof Integer i) {
+            return i == 0;
+        } else if (obj instanceof Double d) {
+            return d == 0.0;
+        } else {
+            return false;
+        }
+    }
 }

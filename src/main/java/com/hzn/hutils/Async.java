@@ -18,79 +18,84 @@ import org.slf4j.LoggerFactory;
  * @date 2024. 10. 4.
  */
 public class Async {
-	private static final Logger log = LoggerFactory.getLogger (Async.class);
-	private static final ExecutorService executor = Executors.newFixedThreadPool (Runtime.getRuntime ().availableProcessors ());
 
-	static {
-		Runtime.getRuntime ().addShutdownHook (new Thread (Async::shutdown));
-	}
+    private static final Logger log = LoggerFactory.getLogger(Async.class);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors());
 
-	private Async () {
-	}
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(Async::shutdown));
+    }
 
-	public static <T> void run (Callable<T> callable) {
-		run (callable, null, null);
-	}
+    private Async() {
+    }
 
-	public static <T> void run (Callable<T> callable, Consumer<T> callback) {
-		run (callable, null, callback);
-	}
+    public static <T> void run(Callable<T> callable) {
+        run(callable, null, null);
+    }
 
-	public static <T> void run (Callable<T> callable, Function<Throwable, T> exceptionally, Consumer<T> callback) {
-		CompletableFuture<T> result = new CompletableFuture<> ();
+    public static <T> void run(Callable<T> callable, Consumer<T> callback) {
+        run(callable, null, callback);
+    }
 
-		if (exceptionally != null) {
-			result.exceptionally (exceptionally);
-		}
+    public static <T> void run(Callable<T> callable, Function<Throwable, T> exceptionally,
+            Consumer<T> callback) {
+        CompletableFuture<T> result = new CompletableFuture<>();
 
-		if (callback != null) {
-			result.thenAccept (callback);
-		}
+        if (exceptionally != null) {
+            result.exceptionally(exceptionally);
+        }
 
-		CompletableFuture.runAsync (() -> {
-			try {
-				result.complete (callable.call ());
-			} catch (Throwable t) {
-				result.completeExceptionally (t);
-			}
-		}, executor);
-	}
+        if (callback != null) {
+            result.thenAccept(callback);
+        }
 
-	public static void scheduleWithFixedDelay (Callable<Boolean> condition, Runnable task, Runnable callback) {
-		scheduleWithFixedDelay (condition, task, callback, 0, 1, TimeUnit.SECONDS);
-	}
+        CompletableFuture.runAsync(() -> {
+            try {
+                result.complete(callable.call());
+            } catch (Throwable t) {
+                result.completeExceptionally(t);
+            }
+        }, executor);
+    }
 
-	public static void scheduleWithFixedDelay (Callable<Boolean> condition, Runnable task, Runnable callback, long initialDelay, long delay, TimeUnit unit) {
-		ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor ();
-		scheduledExecutor.scheduleWithFixedDelay (() -> {
-			try {
-				if (condition.call ()) {
-					task.run ();
-				} else {
-					callback.run ();
-					scheduledExecutor.shutdown ();
-				}
-			} catch (Throwable t) {
-				callback.run ();
-				scheduledExecutor.shutdown ();
-				ExceptionLog.print (t, log);
-			}
-		}, 0, 1, TimeUnit.SECONDS);
-	}
+    public static void scheduleWithFixedDelay(Callable<Boolean> condition, Runnable task,
+            Runnable callback) {
+        scheduleWithFixedDelay(condition, task, callback, 0, 1, TimeUnit.SECONDS);
+    }
 
-	private static void shutdown () {
-		executor.shutdown ();
-		try {
-			if (!executor.awaitTermination (60L, TimeUnit.SECONDS)) {
-				executor.shutdownNow ();
-				if (!executor.awaitTermination (60L, TimeUnit.SECONDS)) {
-					log.error ("Executor Thread pool did not terminate");
-				}
-			}
-		} catch (InterruptedException e) {
-			executor.shutdownNow ();
-			Thread.currentThread ().interrupt ();
-			ExceptionLog.print (e, log);
-		}
-	}
+    public static void scheduleWithFixedDelay(Callable<Boolean> condition, Runnable task,
+            Runnable callback, long initialDelay, long delay, TimeUnit unit) {
+        ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutor.scheduleWithFixedDelay(() -> {
+            try {
+                if (condition.call()) {
+                    task.run();
+                } else {
+                    callback.run();
+                    scheduledExecutor.shutdown();
+                }
+            } catch (Throwable t) {
+                callback.run();
+                scheduledExecutor.shutdown();
+                ExceptionLog.print(t, log);
+            }
+        }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    private static void shutdown() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60L, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+                if (!executor.awaitTermination(60L, TimeUnit.SECONDS)) {
+                    log.error("Executor Thread pool did not terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+            ExceptionLog.print(e, log);
+        }
+    }
 }

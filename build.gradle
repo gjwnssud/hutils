@@ -1,70 +1,70 @@
 plugins {
-	id 'java'
-	id 'maven-publish'
+    id 'java'
+    id 'maven-publish'
 }
 
 group = 'com.hzn'
 def getGitCommitHash = { ->
-	def stdout = new ByteArrayOutputStream()
-	try {
-		exec {
-			commandLine 'git', 'rev-parse', '--short', 'HEAD'
-			standardOutput = stdout
-			ignoreExitValue = true
-		}
-		def result = stdout.toString().trim()
-		return result ?: '0'
-	} catch (Exception ignored) {
-		return '0'
-	}
+    def stdout = new ByteArrayOutputStream()
+    try {
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+            ignoreExitValue = true
+        }
+        def result = stdout.toString().trim()
+        return result ?: '0'
+    } catch (Exception ignored) {
+        return '0'
+    }
 }
 version = '1.0.' + getGitCommitHash()
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 
 dependencies {
-	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-	implementation platform('com.fasterxml.jackson:jackson-bom:2.15.0')
-	implementation 'com.fasterxml.jackson.core:jackson-core'
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
-	implementation 'org.slf4j:slf4j-api:2.0.9'
-	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
-	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
-	implementation 'jakarta.el:jakarta.el-api:6.0.1'
-	compileOnly 'org.springframework:spring-web:6.1.14'
-	compileOnly 'org.springframework:spring-context:6.1.14'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation platform('com.fasterxml.jackson:jackson-bom:2.15.0')
+    implementation 'com.fasterxml.jackson.core:jackson-core'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+    implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
+    implementation 'jakarta.el:jakarta.el-api:6.0.1'
+    compileOnly 'org.springframework:spring-web:6.1.14'
+    compileOnly 'org.springframework:spring-context:6.1.14'
 
-	testImplementation platform('org.junit:junit-bom:5.10.0')
-	testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-	repositories {
-		maven {
-			name = "GitHubPackages"
-			url = uri("https://maven.pkg.github.com/gjwnssud/hutils")
-			credentials {
-				username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
-				password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
-			}
-		}
-	}
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/gjwnssud/hutils")
+            credentials {
+                username = project.findProperty("github.username") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("github.token") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
