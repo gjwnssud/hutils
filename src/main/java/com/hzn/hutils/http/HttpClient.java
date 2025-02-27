@@ -72,7 +72,7 @@ public class HttpClient {
 	public HttpResponse<Map<String, Object>> getHttpResponseByMap () {
 		try {
 			Map<String, Object> responseBodyMap = new ObjectMapper ().readValue (httpResponse.getData (), Map.class);
-			return HttpResponse.of (httpResponse.getCode (), httpResponse.getMessage (), responseBodyMap);
+			return HttpResponse.of (httpResponse.getCode (), httpResponse.getMessage (), responseBodyMap, httpResponse.getResponseHeaders());
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException ("Failed to parse response body", e);
 		}
@@ -81,10 +81,14 @@ public class HttpClient {
 	public <T> HttpResponse<T> getHttpResponseByClass (Class<T> clazz) {
 		try {
 			T cls = new ObjectMapper ().readValue (httpResponse.getData (), clazz);
-			return HttpResponse.of (httpResponse.getCode (), httpResponse.getMessage (), cls);
+			return HttpResponse.of (httpResponse.getCode (), httpResponse.getMessage (), cls, httpResponse.getResponseHeaders());
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException ("Failed to parse response body", e);
 		}
+	}
+	
+	public Headers getResponseHeaders () {
+		return httpResponse.getResponseHeaders();
 	}
 
 	private HttpResponse<String> request (String spec, String method, Headers headers, Parameters parameters, String requestBody) {
@@ -142,6 +146,7 @@ public class HttpClient {
 		}
 
 		StringBuilder sb = new StringBuilder ();
+		Headers responseHeaders = new Headers ();
 		int code;
 		try {
 			code = connection.getResponseCode ();
@@ -151,11 +156,14 @@ public class HttpClient {
 					sb.append (line);
 				}
 			}
+			responseHeaders.putAll(connection.getHeaderFields());
 		} catch (IOException e) {
 			throw new RuntimeException ("Failed to read response", e);
+		} finally {
+			connection.disconnect ();
 		}
 
-		return HttpResponse.of (code, HttpStatus.valueOf (code).getMessage (), sb.toString ());
+		return HttpResponse.of (code, HttpStatus.valueOf (code).getMessage (), sb.toString (), responseHeaders);
 	}
 
 	private static void queryString (StringBuilder sb, Map<String, Object> parameters, String method) {
