@@ -3,7 +3,6 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.hzn'
 def getGitCommitHash = { ->
     def stdout = new ByteArrayOutputStream()
     try {
@@ -18,7 +17,24 @@ def getGitCommitHash = { ->
         return '0'
     }
 }
-version = '1.0.' + getGitCommitHash()
+
+def getGitTag = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--exact-match'
+            standardOutput = stdout
+            ignoreExitValue = true
+        }
+        return stdout.toString().trim()
+    } catch (Exception ignored) {
+        return null
+    }
+}
+
+group = 'com.hzn'
+version = getGitTag() ?: "1.0.0-${getGitCommitHash()}"
+println "📦 프로젝트 버전: ${version}"
 
 repositories {
     mavenCentral()
