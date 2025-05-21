@@ -27,7 +27,7 @@ public final class ConstraintsValidator {
    * 제약 조건 검증
    *
    * @param t 검증이 필요한 객체
-   * @throws Exception if an any error occurs
+   * @throws Exception if any error occurs
    */
   public static <T> void validate(T t) throws Exception {
     try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
@@ -40,7 +40,7 @@ public final class ConstraintsValidator {
                 (existingValue, newValue) -> newValue));
         String violationsString = new ObjectMapper().writeValueAsString(violationMap);
         Exception e = new Exception(violationsString);
-        ExceptionLog.print("validate", e, logger);
+        ExceptionLog.print(e, logger);
         throw e;
       }
     }

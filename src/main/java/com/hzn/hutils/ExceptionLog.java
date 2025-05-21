@@ -1,8 +1,6 @@
 package com.hzn.hutils;
 
 import com.hzn.hutils.http.HttpStatus;
-import java.util.Arrays;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,30 +23,33 @@ public class ExceptionLog {
     print(t, null);
   }
 
-  public static void print(Throwable t, Logger llogger) {
-    Logger logger = llogger == null ? log : llogger;
-    StackTraceElement[] stackTraceElements = t.getStackTrace();
-    StackTraceElement stackTraceElement = stackTraceElements[0];
-    logger.error("[ClassName = {}]", stackTraceElement.getClassName());
-    logger.error("[MethodName = {}]", stackTraceElement.getMethodName());
-    logger.error("[LineNumber = {}]", stackTraceElement.getLineNumber());
+  public static void print(Throwable t, Logger customLogger) {
+    Logger logger = customLogger != null ? customLogger : log;
+
+    // 현재 스레드의 스택트레이스에서 호출자 추출
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+    StackTraceElement caller = null;
+    for (StackTraceElement element : stackTrace) {
+      // ExceptionLog 클래스와 java.lang.Thread 클래스는 제외
+      if (!element.getClassName().equals(ExceptionLog.class.getName()) && !element.getClassName()
+          .startsWith("java.lang.Thread")) {
+        caller = element;
+        break;
+      }
+    }
+
+    // fallback: 예외 내부의 첫 번째 스택 프레임
+    if (caller == null && t.getStackTrace().length > 0) {
+      caller = t.getStackTrace()[0];
+    }
+
+    if (caller != null) {
+      logger.error("[ClassName = {}]", caller.getClassName());
+      logger.error("[MethodName = {}]", caller.getMethodName());
+      logger.error("[LineNumber = {}]", caller.getLineNumber());
+    }
+
     logger.error("[Message = {}]", t.getMessage());
   }
-
-  public static void print(String methodName, Throwable t) {
-    print(methodName, t, null);
-  }
-
-  public static void print(String methodName, Throwable t, Logger llogger) {
-    Logger logger = llogger == null ? log : llogger;
-    Optional<StackTraceElement> stackTraceElementOptional = Arrays.stream(t.getStackTrace())
-        .filter(s -> s.getMethodName().equals(methodName)).findFirst();
-    StackTraceElement stackTraceElement = stackTraceElementOptional.orElseGet(
-        () -> t.getStackTrace()[0]);
-    logger.error("[ClassName = {}]", stackTraceElement.getClassName());
-    logger.error("[MethodName = {}]", stackTraceElement.getMethodName());
-    logger.error("[LineNumber = {}]", stackTraceElement.getLineNumber());
-    logger.error("[Message = {}]", t.getMessage());
-  }
-
 }
