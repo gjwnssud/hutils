@@ -54,15 +54,21 @@ jobs:
         run: echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^1)" >> $GITHUB_OUTPUT
 
       # 8. changelog 생성
-      - name: Generate CHANGELOG.md from git log
+      - name: Generate categorized CHANGELOG.md
         id: changelog
         run: |
-          echo "## ${{ steps.trim_tag.outputs.TAG_NAME }}" > CHANGELOG.md
-          git log ${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD --pretty=format:"- %s" >> CHANGELOG.md
+          TAG=${{ steps.trim_tag.outputs.TAG_NAME }}
+          echo "## $TAG" > CHANGELOG.md
+          echo >> CHANGELOG.md
+          for TYPE in feat fix chore docs refactor test style perf build ci; do
+            echo "### 🔹 ${TYPE^}" >> CHANGELOG.md
+            git log ${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD --pretty=format:"%s" | grep "^$TYPE:" | sed 's/^/- /' >> CHANGELOG.md || true
+            echo >> CHANGELOG.md
+          done
           echo "BODY<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
+      
       # 9. GitHub Release 생성
       - name: Upload JAR artifact to GitHub Release
         uses: softprops/action-gh-release@v1
@@ -73,6 +79,17 @@ jobs:
             🎉 **버전 ${{ steps.trim_tag.outputs.TAG_NAME }} 릴리즈**
             
             ${{ steps.changelog.outputs.BODY }}
-          files: build/libs/*.jar
+          files: build/libs/hutils-${{ steps.trim_tag.outputs.TAG_NAME }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 10. CHANGELOG.md commit
+      - name: Commit generated CHANGELOG.md to repository
+        run: |
+          git config user.name "hzn"
+          git config user.email "hzn.devs@gmail.com"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}" || echo "No changes to commit"
+          git push origin HEAD:${{ github.ref_name }} || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
