@@ -43,15 +43,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 인증 토큰
           GITHUB_USERNAME: ${{ github.actor }}
 
-      # 6. GitHub Release 생성
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 6. v 접두어 제거
+      - name: Remove 'v' prefix from tag for release name
+        id: trim_tag
+        run: echo "TAG_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+      
+      # 7. 이전 태그 호출
+      - name: Get previous tag
+        id: prev_tag
+        run: echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^1)" >> $GITHUB_OUTPUT
+
+      # 8. changelog 생성
+      - name: Generate CHANGELOG.md from git log
+        id: changelog
+        run: |
+          echo "## ${{ steps.trim_tag.outputs.TAG_NAME }}" > CHANGELOG.md
+          git log ${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD --pretty=format:"- %s" >> CHANGELOG.md
+          echo "BODY<<EOF" >> $GITHUB_OUTPUT
+          cat CHANGELOG.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # 9. GitHub Release 생성
+      - name: Upload JAR artifact to GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          name: ${{ steps.trim_tag.outputs.TAG_NAME }}
           body: |
-            자동 생성된 릴리즈입니다.
-          draft: false
-          prerelease: false
+            🎉 **버전 ${{ steps.trim_tag.outputs.TAG_NAME }} 릴리즈**
+            
+            ${{ steps.changelog.outputs.BODY }}
+          files: build/libs/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
