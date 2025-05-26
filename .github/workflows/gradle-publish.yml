@@ -1,29 +1,28 @@
 name: Gradle Build and Publish to GitHub Packages
 
-# GitHub Actions 트리거 설정
 on:
   push:
     tags: ['v*']
+
 permissions:
   packages: write
   contents: write
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Actions가 실행될 환경 설정
-    
+    runs-on: ubuntu-latest
+
     steps:
-      # 1. 리포지토리 체크아웃
       - name: Checkout the repository
         uses: actions/checkout@v2
-      
-      # 2. Java JDK 17 설정
+        with:
+          fetch-depth: 0
+
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: '17'
-      
-      # 3. Gradle 캐시 설정 (의존성 빌드 캐시)
+
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -31,29 +30,29 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      
-      # 4. Gradle 빌드 실행
+
       - name: Build with Gradle
         run: ./gradlew clean build
-      
-      # 5. Gradle을 사용하여 GitHub Packages로 배포
+
       - name: Publish to GitHub Packages
         run: ./gradlew publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub Actions에서 제공하는 인증 토큰
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USERNAME: ${{ github.actor }}
 
-      # 6. v 접두어 제거
       - name: Remove 'v' prefix from tag for release name
         id: trim_tag
         run: echo "TAG_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
-      
-      # 7. 이전 태그 호출
-      - name: Get previous tag
-        id: prev_tag
-        run: echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^1)" >> $GITHUB_OUTPUT
 
-      # 8. changelog 생성
+      - name: Get previous tag safely
+        id: prev_tag
+        run: |
+          if git rev-parse HEAD^1 >/dev/null 2>&1; then
+            echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^1)" >> $GITHUB_OUTPUT
+          else
+            echo "PREV_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate categorized CHANGELOG.md
         id: changelog
         run: |
@@ -68,8 +67,7 @@ jobs:
           echo "BODY<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-      
-      # 9. GitHub Release 생성
+
       - name: Upload JAR artifact to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -77,19 +75,19 @@ jobs:
           name: ${{ steps.trim_tag.outputs.TAG_NAME }}
           body: |
             🎉 **버전 ${{ steps.trim_tag.outputs.TAG_NAME }} 릴리즈**
-            
+
             ${{ steps.changelog.outputs.BODY }}
-          files: build/libs/hutils-${{ steps.trim_tag.outputs.TAG_NAME }}.jar
+          files: build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 10. CHANGELOG.md commit
-      - name: Commit generated CHANGELOG.md to repository
+      - name: Commit generated CHANGELOG.md to separate branch
         run: |
           git config user.name "hzn"
           git config user.email "hzn.devs@gmail.com"
+          git checkout -b changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
           git add CHANGELOG.md
           git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}" || echo "No changes to commit"
-          git push origin HEAD:${{ github.ref_name }} || true
+          git push origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
