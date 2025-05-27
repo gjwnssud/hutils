@@ -3,6 +3,8 @@ name: Gradle Build and Publish to GitHub Packages
 on:
   push:
     tags: ['v*']
+  pull_request:
+    types: [closed]
 
 permissions:
   packages: write
@@ -11,6 +13,7 @@ permissions:
 
 jobs:
   build:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -119,8 +122,28 @@ jobs:
           reviewers: hzn
           draft: false
 
+      - name: Delete update branch
+        if: steps.pr_check.outcome == 'success'
+        run: |
+          BRANCH=changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
+          git push origin --delete $BRANCH || echo "branch not found"
+
       - name: Delete release branch
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           BRANCH=release/${GITHUB_REF_NAME}
           git push origin --delete $BRANCH || echo "branch not found"
+
+  delete-merged-branch:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged update branch
+        run: |
+          BRANCH=${{ github.event.pull_request.head.ref }}
+          if [[ "$BRANCH" == changelog/update-* ]]; then
+            git config --global user.name "hzn"
+            git config --global user.email "hzn.devs@gmail.com"
+            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} .
+            git push origin --delete "$BRANCH" || echo "Branch not found or already deleted"
+          fi
