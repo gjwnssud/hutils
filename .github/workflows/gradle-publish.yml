@@ -89,8 +89,9 @@ jobs:
           git config user.name "hzn"
           git config user.email "hzn.devs@gmail.com"
           git checkout -b changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
+          git restore --staged .github || true
           git add CHANGELOG.md
-          git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}" || echo "No changes to commit"
+          git diff --cached --quiet || git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}"
           git push origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
