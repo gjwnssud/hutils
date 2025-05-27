@@ -103,10 +103,11 @@ jobs:
         id: pr_check
         run: |
           git fetch origin main
-          git diff --quiet origin/main..HEAD && echo "No changes to PR. Skipping." && exit 0
+          git diff --quiet origin/main..HEAD
+        continue-on-error: true
 
       - name: Create Pull Request for CHANGELOG update
-        if: steps.pr_check.outcome == 'success'
+        if: steps.pr_check.outcome == 'failure'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
