@@ -3,8 +3,6 @@ name: Gradle Build and Publish to GitHub Packages
 on:
   push:
     tags: ['v*']
-  pull_request:
-    types: [closed]
 
 permissions:
   packages: write
@@ -13,18 +11,13 @@ permissions:
 
 jobs:
   build:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the release branch based on tag
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: refs/heads/release/${{ github.ref_name }}
-
-      - name: Fetch all branches (for later checkout of origin/release/*)
-        run: git fetch origin '+refs/heads/*:refs/remotes/origin/*'
 
       - name: Set up JDK 17
         uses: actions/setup-java@v1
@@ -79,37 +72,19 @@ jobs:
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Upload JAR artifact to GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ steps.trim_tag.outputs.TAG_NAME }}
-          body: |
-            🎉 **버전 ${{ steps.trim_tag.outputs.TAG_NAME }} 릴리즈**
-
-            ${{ steps.changelog.outputs.BODY }}
-          files: build/libs/*.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit generated CHANGELOG.md to separate branch based on release
+      - name: Create update branch and commit CHANGELOG.md
         run: |
           git config user.name "hzn"
           git config user.email "hzn.devs@gmail.com"
-          git checkout -b changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }} origin/release/${{ github.ref_name }}
-          git restore --staged .github || true
+          git checkout -b changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
           git add CHANGELOG.md
-          git diff --cached --quiet && echo "No changes to commit." && exit 0
           git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}"
-          git push --force-with-lease origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git push origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
 
-      - name: Check if CHANGELOG.md is different from main
+      - name: Check if CHANGELOG.md differs from main
         id: changelog_diff
         run: |
           git fetch origin main
-          git fetch origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
           BASE=$(git merge-base origin/main origin/changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }})
           git diff --quiet $BASE..origin/changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }} -- CHANGELOG.md \
             && echo "CHANGES=false" >> $GITHUB_OUTPUT \
@@ -117,6 +92,7 @@ jobs:
 
       - name: Create Pull Request for CHANGELOG update
         if: steps.changelog_diff.outputs.CHANGES == 'true'
+        id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -128,11 +104,12 @@ jobs:
           reviewers: hzn
           draft: false
 
-      - name: Delete update branch
-        if: steps.changelog_diff.outputs.CHANGES == 'false'
+      - name: Auto-merge the PR
+        if: steps.changelog_diff.outputs.CHANGES == 'true'
         run: |
-          BRANCH=changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
-          git push origin --delete $BRANCH || echo "branch not found"
+          gh pr merge ${{ steps.cpr.outputs.pull-request-url }} --squash --delete-branch --admin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete release branch
         if: startsWith(github.ref, 'refs/tags/')
