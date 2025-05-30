@@ -63,7 +63,7 @@ jobs:
           echo "## $TAG" > CHANGELOG.md
           echo >> CHANGELOG.md
           if [ -z "${{ steps.prev_tag.outputs.PREV_TAG }}" ]; then
-            RANGE=""
+            RANGE="HEAD"
           else
             RANGE="${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD"
           fi
@@ -82,7 +82,8 @@ jobs:
           echo "BODY<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
+          cat CHANGELOG.md
+          
       - name: Upload JAR to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
