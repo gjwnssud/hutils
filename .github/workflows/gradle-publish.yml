@@ -100,7 +100,7 @@ jobs:
           git add CHANGELOG.md
           git diff --cached --quiet && echo "No changes to commit." && exit 0
           git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}"
-          git push origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
+          git push --force origin changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
 
       - name: Check if update branch differs from main
         id: changelog_diff
