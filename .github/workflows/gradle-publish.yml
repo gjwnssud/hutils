@@ -53,11 +53,8 @@ jobs:
       - name: Get previous tag
         id: prev_tag
         run: |
-          if git rev-parse HEAD^1 >/dev/null 2>&1; then
-            echo "PREV_TAG=$(git describe --tags --abbrev=0 HEAD^1)" >> $GITHUB_OUTPUT
-          else
-            echo "PREV_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-          fi
+          PREV_TAG=$(git tag --sort=-creatordate | grep '^v' | grep -v "${GITHUB_REF_NAME}" | head -n 1 || echo "")
+          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_OUTPUT
 
       - name: Generate categorized CHANGELOG.md
         id: changelog
@@ -65,8 +62,13 @@ jobs:
           TAG=${{ steps.trim_tag.outputs.TAG_NAME }}
           echo "## $TAG" > CHANGELOG.md
           echo >> CHANGELOG.md
-          for TYPE in feat fix chore docs refactor test style perf build ci; do
-            COMMITS=$(git log ${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD --pretty=format:"%s" | grep "^$TYPE:") || true
+          if [ -z "${{ steps.prev_tag.outputs.PREV_TAG }}" ]; then
+            RANGE=""
+          else
+            RANGE="${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD"
+          fi
+          for TYPE feat fix chore docs refactor test style docs perf ci build revert init; do
+            COMMITS=$(git log $RANGE --pretty=format:"%s" | grep "^$TYPE:") || true
             if [ -n "$COMMITS" ]; then
               echo "### 🔹 ${TYPE^}" >> CHANGELOG.md
               echo "$COMMITS" | sed 's/^/- /' >> CHANGELOG.md
