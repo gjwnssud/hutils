@@ -121,7 +121,7 @@ jobs:
       - name: Create & merge PR to main using gh cli
         if: steps.changelog_diff.outputs.CHANGES == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           gh pr create \
             --head changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }} \
