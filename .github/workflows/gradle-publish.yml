@@ -110,6 +110,13 @@ jobs:
           git diff --quiet $BASE..origin/changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }} -- CHANGELOG.md \
             && echo "CHANGES=false" >> $GITHUB_OUTPUT \
             || echo "CHANGES=true" >> $GITHUB_OUTPUT
+          
+      - name: Ensure labels exist
+        run: |
+          gh label create changelog --description "Changelog updates" --color FFCE00 || true
+          gh label create automated --description "Automated PR" --color 666666 || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create & merge PR to main using gh cli
         if: steps.changelog_diff.outputs.CHANGES == 'true'
