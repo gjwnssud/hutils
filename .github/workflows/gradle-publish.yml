@@ -131,4 +131,4 @@ jobs:
             --label changelog --label automated
           
           gh pr merge changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }} \
-            --squash --delete-branch --yes
+            --squash --delete-branch --confirm
