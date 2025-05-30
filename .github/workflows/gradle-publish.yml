@@ -67,7 +67,7 @@ jobs:
           else
             RANGE="${{ steps.prev_tag.outputs.PREV_TAG }}..HEAD"
           fi
-          for TYPE feat fix chore docs refactor test style docs perf ci build revert init; do
+          for TYPE in feat fix chore docs refactor test style docs perf ci build revert init; do
             COMMITS=$(git log $RANGE --pretty=format:"%s" | grep "^$TYPE:") || true
             if [ -n "$COMMITS" ]; then
               echo "### 🔹 ${TYPE^}" >> CHANGELOG.md
@@ -75,6 +75,10 @@ jobs:
               echo >> CHANGELOG.md
             fi
           done
+          if ! grep -q "^### 🔹" CHANGELOG.md; then
+            echo "### 🔹 Other" >> CHANGELOG.md
+            git log $RANGE --pretty=format:"%s" | sed 's/^/- /' >> CHANGELOG.md
+          fi
           echo "BODY<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
