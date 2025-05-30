@@ -102,6 +102,16 @@ jobs:
           git config user.name "hzn"
           git config user.email "hzn.devs@gmail.com"
           git checkout -b changelog/update-${{ steps.trim_tag.outputs.TAG_NAME }}
+          echo "🔍 ls -al"
+          ls -al
+          echo "🔍 git status"
+          git status
+          echo "🔍 git diff"
+          git diff
+          echo "🔍 git diff --cached"
+          git diff --cached
+          echo "🔍 git ls-files"
+          git ls-files
           git add CHANGELOG.md
           git diff --cached --quiet && echo "No changes to commit." && exit 0
           git commit -m "docs: update CHANGELOG for ${{ steps.trim_tag.outputs.TAG_NAME }}"
